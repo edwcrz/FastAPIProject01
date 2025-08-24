@@ -9,13 +9,6 @@ class User(BaseModel):
     username: str
     email: str
 
-@app.get("/users_class")
-async def users_class():
-    try:
-        return User(id= 11 , name= "José", surname= "Chilavert", username= "chila", email= "chilavert@gmail.com")
-    except:
-        return {"error": f'Error al obtener el usuario'} 
-
 user_list = [{"id": 1, "name": "Eduardo", "surname": "Cruz", "username" : "edulamugre", "email": "cruzeduardoa@gmail.com"},
              {"id": 2, "name": "edu", "surname": "crz", "username" : "edulamugre", "email": "edwcrz@gmail.com"},
              {"id": 3, "name": "edw", "surname": "crzdev", "username" : "edulamugre", "email": "edwcrzdev@gmail.com"}]
@@ -24,6 +17,16 @@ user_list = [{"id": 1, "name": "Eduardo", "surname": "Cruz", "username" : "edula
 async def users_json():
     return user_list
 
+# por query http
+@app.get("/users_query")
+async def users_query(id: int):
+    users_list = filter (lambda U: U["id"] == id, user_list)
+    try:
+        return dict(list(users_list)[0])
+    except:
+        return {"error": f'Error al obtener el usuario con id {id} por http query'}
+
+# por path http
 @app.get("/user_id/{id}")
 async def user_id(id: int):
     users_list = filter (lambda U: U["id"] == id, user_list)
@@ -64,3 +67,11 @@ async def user_username(username: str):
         return list(users_list)
     except:
         return {"error": f'User con email {username} not found'}
+    
+#def search_user (id : int):
+#    users_list = filter (lambda U: U["id"] == id, user_list)
+#    try:
+#        return list(users_list)[0]
+#    except:
+#        return {"error": f'Error al obtener el usuario con id {id}'}
+    
