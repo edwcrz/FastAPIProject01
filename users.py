@@ -2,29 +2,43 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 app = FastAPI()
 
-class User(BaseModel):
+class User_Class(BaseModel):
     id: int
     name: str
     surname: str
     username: str
     email: str
 
-user_list = [{"id": 1, "name": "Eduardo", "surname": "Cruz", "username" : "edulamugre", "email": "cruzeduardoa@gmail.com"},
-             {"id": 2, "name": "edu", "surname": "crz", "username" : "edulamugre", "email": "edwcrz@gmail.com"},
-             {"id": 3, "name": "edw", "surname": "crzdev", "username" : "edulamugre", "email": "edwcrzdev@gmail.com"}]
+Usuario = User_Class(id= 0, name="", surname="", username="", email="")
+
+user_list_json = [{"id": 1, "name": "Eduardo", "surname": "Cruz", "username" : "edulamugre", "email": "cruzeduardoa@gmail.com"},
+                  {"id": 2, "name": "edu", "surname": "crz", "username" : "edulamugre", "email": "edwcrz@gmail.com"},{"id": 3, "name": "edw", "surname": "crzdev", "username" : "edulamugre", "email": "edwcrzdev@gmail.om"}]
+
+user_list = [User_Class(id= 1, name= "Eduardo", surname= "Cruz", username= "cruze", email= "cruzedu@gmail.com"),
+             User_Class(id= 2, name= "edw", surname= "crz", username= "edwcrz", email= "edwcrz@gmail.com"),
+             User_Class(id= 3, name= "edu", surname= "crzdev", username= "educrz", email= "edwcrzdev@gmail.com")]
 
 @app.get("/users_json")
 async def users_json():
-    return user_list
+    return user_list_json
+
+def search_user (id : int):
+    users_list = filter (lambda Usuario: Usuario.id == id, user_list)
+    try:
+        return list(users_list)[0]
+    except:
+        return {"error": f'Error al obtener el usuario con id {id}'} 
 
 # por query http
 @app.get("/users_query")
 async def users_query(id: int):
-    users_list = filter (lambda U: U["id"] == id, user_list)
-    try:
-        return dict(list(users_list)[0])
-    except:
-        return {"error": f'Error al obtener el usuario con id {id} por http query'}
+#    users_list = filter (lambda U: U["id"] == id, user_list)
+#    try:
+#        return list(users_list)[0]
+#    except:
+#        return {"error": f'Error al obtener el usuario con id {id} por http query'}
+    return search_user(id)
+
 
 # por path http
 @app.get("/user_id/{id}")
@@ -68,10 +82,4 @@ async def user_username(username: str):
     except:
         return {"error": f'User con email {username} not found'}
     
-#def search_user (id : int):
-#    users_list = filter (lambda U: U["id"] == id, user_list)
-#    try:
-#        return list(users_list)[0]
-#    except:
-#        return {"error": f'Error al obtener el usuario con id {id}'}
-    
+
