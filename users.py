@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, WebSocketException
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -26,6 +26,9 @@ user_list = [User_Class(id= 1, name= "Eduardo", surname= "Cruz", username= "cruz
              User_Class(id= 2, name= "edw", surname= "crz", username= "edwcrz", email= "edwcrz@gmail.com"),
              User_Class(id= 3, name= "edu", surname= "crzdev", username= "educrz", email= "edwcrzdev@gmail.com")]
 
+@app.get("/users")
+async def get_users():
+    return user_list
 
 def search_user (id : int):
     users_list = filter (lambda user_list: user_list.id == id, user_list)
@@ -86,10 +89,42 @@ async def user_username(username: str):
     except:
         return {"error": f'User con email {username} not found'}
 
-@app.post("/user_create/")
-async def user_create(user: User_Class):
-    if type (search_user(user.id)) == User_Class:
-        return {"error": f'User con id {user.id} ya existe'}
+@app.post("/user_create/", status_code=201)
+async def user_create(User_Assigned: User_Class):
+    if type (search_user(User_Assigned.id)) == User_Class:
+        raise HTTPException(status_code=409, detail=f'User con id {User_Assigned.id} ya existe. No puede ser creado.')
+        #return {"error": f'User con id {user.id} ya existe. No puede ser creado.'}
     else:
-        user_list.append(user)
-        return {"message": "User created successfully", "user": user} 
+        user_list.append(User_Assigned)
+        return {"message": f'El usuario {User_Assigned.id} fue creado correctamente'}
+
+found= False
+@app.put("/user_update/", status_code=202)
+async def user_update(User_Updated: User_Class):
+    for index, saved_user in enumerate(user_list):
+        if saved_user.id == User_Updated.id:
+            user_list[index] = User_Updated
+            found = True
+        else:
+            found = False
+    if not found:
+        raise HTTPException(status_code=412, detail=f'el usuario {User_Updated.id} no existía, debe ser creado previamente mediante el uso de POST, para ser actualizado con PUT')
+    else:
+        return {"message": f'User con id {User_Updated.id} actualizado correctamente'}
+
+
+found = False
+@app.delete("/user_delete/{id}")
+async def user_delete(id: int):
+    for index, saved_user in enumerate(user_list):
+        if saved_user.id == id:
+            del user_list[index]
+            found = True
+        else:
+            found = False
+
+    if not found:
+        return {"error": f'el usuario {id} que intenta borrar no existía, previamente debe ser creado con POST para ser eliminado con DELETE'}
+    else:
+        return {"message": f'User con id {id} eliminado correctamente'}
+        
