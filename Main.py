@@ -1,29 +1,24 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from routers import products
+from routers import users
 
-fastapi_Instance = FastAPI()
+fastapi_instance = FastAPI()
 
-# class User(BaseModel):
-#    name: str
-#    surname: str
-#    mail: str
-#    age = int
-
-# Users = User("Eduardo", "Cruz", "edwcrz@gmail.com", 35)
-
-# @app.get("/userclass")
-# async def userclass():
-#     return Users(name = "Edu", surname = "Crz", mail = "edwcrz@gmail.com", age = 33)
-@fastapi_Instance.get("/")
+@fastapi_instance.get("/")
 async def root():
     return  {"Hello" : "World FastAPI", 
              "Mail" : "edwcrz@gmail.com", 
              "Age" : 35
             }
 
-@fastapi_Instance.get("/cv")
+@fastapi_instance.get("/cv")
 async def get_cv():
     return  {"Name" : "Eduardo Cruz", 
              "Mail" : "cruzeduardoa@gmail.com", 
              "Age" : 49
             }
+
+# routers
+fastapi_instance.include_router(products.router_instance)
+fastapi_instance.include_router(users.router_instance)
