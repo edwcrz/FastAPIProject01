@@ -46,7 +46,7 @@ def SearchUserDB(username: str):
 def SearchTokenDB(token: str):
     for user_dict in db.values():
         if str(user_dict.get("token")) == str(token):
-            return PassClass(**user_dict)
+            return UserClass(**user_dict)
     return None
     
 # print(SearchUserDB("cruzeduardoa"))
@@ -75,4 +75,8 @@ async def read_users_me(token: str = Depends(oauth)):
                             detail="Usuario no encontrado",
                             headers={"WWW-Authenticate": "Bearer"}
                             )
+    if user.disabled == True:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+                            detail="Usuario inactivo")
+
     return user
