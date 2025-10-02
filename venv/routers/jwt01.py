@@ -1,8 +1,8 @@
-from fastapi import FastAPI
+# from fastapi import FastAPI
+from fastapi import APIRouter, HTTPException, WebSocketException
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Depends
-from fastapi import HTTPException
 # import random
 from starlette import status
 
@@ -15,7 +15,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1 # minuto
 SECRET = "9186f53ac2db04d593302c13305f0bd9975bfd448e30445f327e0bbb2de1f19d"
 crypt = CryptContext(schemes=["bcrypt"])
 
-app = FastAPI()
+router_instance = APIRouter()
 
 class UserClass(BaseModel):
     username: str
@@ -66,7 +66,7 @@ def SearchTokenDB(token: str):
 
 oauth = OAuth2PasswordBearer(tokenUrl="login")
 
-@app.post("/login")
+@router_instance.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     userdedb = db.get(form.username)
     user = SearchUserDB(form.username)
@@ -90,7 +90,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
         }
     return {"access_token": jwt.encode(access_token, SECRET, algorithm=ALGORITHM), "token_type": "bearer"}
 
-@app.get("/users/me")
+@router_instance.get("/users/me")
 async def read_users_me(token: str = Depends(oauth)):
     user = SearchTokenDB(token)
     if not user:

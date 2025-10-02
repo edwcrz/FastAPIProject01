@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from routers import products
-from routers import users
-from router import auth01
+from routers import products, users, jwt01, auth01
 
 fastapi_instance = FastAPI()
 
@@ -23,3 +21,5 @@ async def get_cv():
 # routers
 fastapi_instance.include_router(products.router_instance)
 fastapi_instance.include_router(users.router_instance)
+# fastapi_instance.include_router(auth01.router_instance)
+fastapi_instance.include_router(jwt01.router_instance)
